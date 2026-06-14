@@ -1,5 +1,177 @@
+<script setup>
+import { ref, computed, onMounted } from 'vue'
+import { useRoute } from 'vue-router'
+import { useAuthStore } from '@/stores/auth'
+import AppHeader from '@/components/layout/AppHeader.vue'
+import CommentItem from '@/components/comments/CommentItem.vue'
+import { getPostById } from '@/services/postService'
+import { getCommentsByPostId, createComment, deleteComment } from '@/services/commentService'
+import {
+  formatRelativeTime,
+  getInitials,
+  getAvatarColor,
+  getCategoryColor,
+} from '@/utils/formatDate'
+
+const route = useRoute()
+const authStore = useAuthStore()
+
+const post = ref(null)
+const comments = ref([])
+const loading = ref(true)
+const newComment = ref('')
+const replyingTo = ref(null)
+const submitting = ref(false)
+
+const postId = computed(() => Number(route.params.id))
+
+// Solo comentarios raíz (sin padre); las respuestas se anidan dentro
+const rootComments = computed(() => comments.value.filter((c) => !c.parentCommentId))
+
+function repliesOf(commentId) {
+  return comments.value.filter((c) => c.parentCommentId === commentId)
+}
+
+async function loadData() {
+  loading.value = true
+  try {
+    const [postRes, commentsRes] = await Promise.all([
+      getPostById(postId.value),
+      getCommentsByPostId(postId.value),
+    ])
+    post.value = postRes.data
+    comments.value = commentsRes.data
+  } finally {
+    loading.value = false
+  }
+}
+
+function startReply(comment) {
+  replyingTo.value = comment
+}
+
+function cancelReply() {
+  replyingTo.value = null
+}
+
+async function submitComment() {
+  if (!newComment.value.trim() || submitting.value) return
+  submitting.value = true
+
+  try {
+    const { data } = await createComment({
+      commentContent: newComment.value.trim(),
+      userId: Number(authStore.user?.id),
+      postId: postId.value,
+      parentCommentId: replyingTo.value?.id ?? null,
+    })
+
+    comments.value.push(data)
+    newComment.value = ''
+    replyingTo.value = null
+  } finally {
+    submitting.value = false
+  }
+}
+
+async function handleDelete(commentId) {
+  await deleteComment(commentId)
+  comments.value = comments.value.filter(
+    (c) => c.id !== commentId && c.parentCommentId !== commentId,
+  )
+}
+
+onMounted(loadData)
+</script>
+
 <template>
-  <div class="min-h-screen bg-slate-50 flex items-center justify-center">
-    <p class="text-slate-500">Detalle de post — próximamente</p>
+  <div class="min-h-screen bg-slate-50">
+    <AppHeader />
+
+    <main class="max-w-2xl mx-auto px-4 py-6">
+      <div v-if="loading" class="text-center py-12 text-slate-400">Cargando...</div>
+
+      <template v-else-if="post">
+        <article class="bg-white border border-slate-200 rounded-2xl p-5 mb-4">
+          <div class="flex items-center gap-3 mb-3">
+            <div
+              :class="getAvatarColor(post.username)"
+              class="w-10 h-10 rounded-full text-white flex items-center justify-center text-sm font-medium"
+            >
+              {{ getInitials(post.username) }}
+            </div>
+            <div>
+              <p class="text-sm font-medium text-slate-900">{{ post.username }}</p>
+              <p class="text-xs text-slate-400">{{ formatRelativeTime(post.created) }}</p>
+            </div>
+          </div>
+
+          <p class="text-sm text-slate-700 leading-relaxed mb-3 whitespace-pre-wrap">
+            {{ post.postContent }}
+          </p>
+
+          <div v-if="post.categories?.length" class="flex flex-wrap gap-1.5">
+            <span
+              v-for="cat in post.categories"
+              :key="cat.categoryId"
+              :class="getCategoryColor(cat.categoryId)"
+              class="text-xs font-medium px-2.5 py-0.5 rounded-full"
+            >
+              {{ cat.name }}
+            </span>
+          </div>
+        </article>
+
+        <div class="bg-white border border-slate-200 rounded-2xl p-5">
+          <h2 class="text-sm font-semibold text-slate-900 mb-4">
+            Comentarios ({{ comments.length }})
+          </h2>
+
+          <div class="space-y-4 mb-4">
+            <div v-for="comment in rootComments" :key="comment.id">
+              <CommentItem :comment="comment" @delete="handleDelete" @reply="startReply" />
+
+              <div v-if="repliesOf(comment.id).length" class="ml-11 mt-3 space-y-3">
+                <CommentItem
+                  v-for="reply in repliesOf(comment.id)"
+                  :key="reply.id"
+                  :comment="reply"
+                  @delete="handleDelete"
+                  @reply="startReply"
+                />
+              </div>
+            </div>
+
+            <p v-if="comments.length === 0" class="text-sm text-slate-400 text-center py-4">
+              Sé el primero en comentar.
+            </p>
+          </div>
+
+          <div
+            v-if="replyingTo"
+            class="flex items-center justify-between text-xs text-violet-600 bg-violet-50 rounded-lg px-3 py-1.5 mb-2"
+          >
+            Respondiendo a {{ replyingTo.username }}
+            <button @click="cancelReply" class="text-violet-400 hover:text-violet-700">✕</button>
+          </div>
+
+          <form @submit.prevent="submitComment" class="flex gap-2">
+            <input
+              v-model="newComment"
+              type="text"
+              placeholder="Escribe un comentario..."
+              class="flex-1 px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-violet-500"
+            />
+            <button
+              type="submit"
+              :disabled="submitting || !newComment.trim()"
+              class="bg-violet-600 hover:bg-violet-700 disabled:opacity-50 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors"
+            >
+              Enviar
+            </button>
+          </form>
+        </div>
+      </template>
+    </main>
   </div>
 </template>

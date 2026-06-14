@@ -1,34 +1,56 @@
 <script setup>
-import { useAuthStore } from '@/stores/auth'
-import { useRouter } from 'vue-router'
+import { ref, onMounted, computed } from 'vue'
+import AppHeader from '@/components/layout/AppHeader.vue'
+import PostCard from '@/components/posts/PostCard.vue'
+import { getPagedPosts } from '@/services/postService'
 
-const authStore = useAuthStore()
-const router = useRouter()
+const posts = ref([])
+const page = ref(1)
+const pageSize = 5
+const totalCount = ref(0)
+const loading = ref(false)
 
-function handleLogout() {
-  authStore.logout()
-  router.push({ name: 'login' })
+const hasMore = computed(() => posts.value.length < totalCount.value)
+
+async function loadPosts() {
+  loading.value = true
+  try {
+    const { data } = await getPagedPosts(page.value, pageSize)
+    posts.value.push(...data.items)
+    totalCount.value = data.totalCount
+  } finally {
+    loading.value = false
+  }
 }
+
+function loadMore() {
+  page.value++
+  loadPosts()
+}
+
+onMounted(loadPosts)
 </script>
 
 <template>
-  <div class="min-h-screen bg-slate-50 p-8">
-    <div class="max-w-2xl mx-auto">
-      <div class="flex items-center justify-between mb-6">
-        <h1 class="text-2xl font-semibold text-slate-900">Feed</h1>
+  <div class="min-h-screen bg-slate-50">
+    <AppHeader />
+
+    <main class="max-w-2xl mx-auto px-4 py-6 space-y-4">
+      <PostCard v-for="post in posts" :key="post.id" :post="post" />
+
+      <div v-if="!loading && posts.length === 0" class="text-center py-12 text-slate-400">
+        Aún no hay publicaciones. ¡Sé el primero en publicar!
+      </div>
+
+      <div v-if="hasMore" class="text-center pt-2">
         <button
-          @click="handleLogout"
-          class="text-sm text-slate-500 hover:text-red-600 border border-slate-300 rounded-lg px-3 py-1.5 transition-colors"
+          @click="loadMore"
+          :disabled="loading"
+          class="text-sm font-medium text-violet-600 hover:text-violet-700 border border-violet-200 rounded-lg px-4 py-2 transition-colors disabled:opacity-50"
         >
-          Cerrar sesión
+          {{ loading ? 'Cargando...' : 'Cargar más' }}
         </button>
       </div>
-      <div class="bg-white border border-slate-200 rounded-2xl p-6">
-        <p class="text-slate-600">
-          Bienvenido, <span class="font-medium text-slate-900">{{ authStore.user?.username }}</span
-          >. Aquí construiremos el feed de posts.
-        </p>
-      </div>
-    </div>
+    </main>
   </div>
 </template>
