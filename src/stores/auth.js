@@ -1,10 +1,25 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
+import { jwtDecode } from 'jwt-decode'
 import api, { setTokens, clearTokens, getAccessToken } from '@/services/api'
 
+function userFromToken(token) {
+  if (!token) return null
+  try {
+    const decoded = jwtDecode(token)
+    return {
+      id: decoded['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier'],
+      username: decoded['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name'],
+      email: decoded['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress'],
+    }
+  } catch {
+    return null
+  }
+}
+
 export const useAuthStore = defineStore('auth', () => {
-  const user = ref(null)
   const accessToken = ref(getAccessToken())
+  const user = ref(userFromToken(accessToken.value))
 
   const isAuthenticated = computed(() => !!accessToken.value)
 
@@ -13,10 +28,7 @@ export const useAuthStore = defineStore('auth', () => {
 
     setTokens(data.accessToken, data.refreshToken)
     accessToken.value = data.accessToken
-    user.value = {
-      username: data.username,
-      email: data.email,
-    }
+    user.value = userFromToken(data.accessToken)
 
     return data
   }
