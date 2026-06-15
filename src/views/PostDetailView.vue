@@ -3,7 +3,7 @@ import { ref, computed, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import AppHeader from '@/components/layout/AppHeader.vue'
-import CommentItem from '@/components/comments/CommentItem.vue'
+import CommentThread from '@/components/comments/CommentThread.vue'
 import { getPostById } from '@/services/postService'
 import { getCommentsByPostId, createComment, deleteComment } from '@/services/commentService'
 import {
@@ -22,14 +22,18 @@ const loading = ref(true)
 const newComment = ref('')
 const replyingTo = ref(null)
 const submitting = ref(false)
+const visibleCount = ref(5)
 
 const postId = computed(() => Number(route.params.id))
 
 // Solo comentarios raíz (sin padre); las respuestas se anidan dentro
 const rootComments = computed(() => comments.value.filter((c) => !c.parentCommentId))
 
-function repliesOf(commentId) {
-  return comments.value.filter((c) => c.parentCommentId === commentId)
+const visibleRootComments = computed(() => rootComments.value.slice(0, visibleCount.value))
+const hasMoreComments = computed(() => rootComments.value.length > visibleCount.value)
+
+function showMoreComments() {
+  visibleCount.value += 5
 }
 
 async function loadData() {
@@ -128,23 +132,25 @@ onMounted(loadData)
           </h2>
 
           <div class="space-y-4 mb-4">
-            <div v-for="comment in rootComments" :key="comment.id">
-              <CommentItem :comment="comment" @delete="handleDelete" @reply="startReply" />
-
-              <div v-if="repliesOf(comment.id).length" class="ml-11 mt-3 space-y-3">
-                <CommentItem
-                  v-for="reply in repliesOf(comment.id)"
-                  :key="reply.id"
-                  :comment="reply"
-                  @delete="handleDelete"
-                  @reply="startReply"
-                />
-              </div>
-            </div>
-
+            <CommentThread
+              v-for="comment in visibleRootComments"
+              :key="comment.id"
+              :comment="comment"
+              :all-comments="comments"
+              @delete="handleDelete"
+              @reply="startReply"
+            />
             <p v-if="comments.length === 0" class="text-sm text-slate-400 text-center py-4">
               Sé el primero en comentar.
             </p>
+            <div v-if="hasMoreComments" class="text-center pt-2">
+              <button
+                @click="showMoreComments"
+                class="text-sm font-medium text-violet-600 hover:text-violet-700 border border-violet-200 rounded-lg px-4 py-1.5 transition-colors"
+              >
+                Ver más comentarios (+{{ Math.min(5, rootComments.length - visibleCount) }})
+              </button>
+            </div>
           </div>
 
           <div
