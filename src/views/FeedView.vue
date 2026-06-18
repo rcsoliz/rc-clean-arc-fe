@@ -3,6 +3,7 @@ import { ref, onMounted, computed } from 'vue'
 import AppHeader from '@/components/layout/AppHeader.vue'
 import PostCard from '@/components/posts/PostCard.vue'
 import { getPagedPosts } from '@/services/postService'
+import { onActivated } from 'vue'
 
 const posts = ref([])
 const page = ref(1)
@@ -11,6 +12,10 @@ const totalCount = ref(0)
 const loading = ref(false)
 
 const hasMore = computed(() => posts.value.length < totalCount.value)
+
+onActivated(() => {
+  if (posts.value.length === 0) loadPosts()
+})
 
 async function loadPosts() {
   loading.value = true
