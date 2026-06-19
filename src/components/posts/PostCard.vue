@@ -17,7 +17,7 @@ const props = defineProps({
 const router = useRouter()
 const authStore = useAuthStore()
 
-const likeCount = ref(props.post.likeCount)
+const likeCount = ref(props.post.likeCount ?? 0)
 const likedByMe = ref(false)
 const myLikeId = ref(null)
 const likeLoading = ref(false)
@@ -25,7 +25,6 @@ const likeLoading = ref(false)
 async function toggleLike() {
   if (likeLoading.value) return
   likeLoading.value = true
-
   try {
     if (!likedByMe.value) {
       const { data } = await createLike({
@@ -43,7 +42,9 @@ async function toggleLike() {
       likeCount.value--
     }
   } catch {
-    // si falla, no cambiamos el estado visual
+    // revertir si falla
+    if (likedByMe.value) likeCount.value--
+    else likeCount.value++
   } finally {
     likeLoading.value = false
   }

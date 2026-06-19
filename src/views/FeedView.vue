@@ -1,10 +1,11 @@
 <script setup>
-import { ref, onMounted, computed } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { useRouter } from 'vue-router'
 import AppHeader from '@/components/layout/AppHeader.vue'
 import PostCard from '@/components/posts/PostCard.vue'
 import { getPagedPosts } from '@/services/postService'
-import { onActivated } from 'vue'
 
+const router = useRouter()
 const posts = ref([])
 const page = ref(1)
 const pageSize = 5
@@ -13,11 +14,12 @@ const loading = ref(false)
 
 const hasMore = computed(() => posts.value.length < totalCount.value)
 
-onActivated(() => {
-  if (posts.value.length === 0) loadPosts()
-})
-
-async function loadPosts() {
+async function loadPosts(reset = false) {
+  if (reset) {
+    posts.value = []
+    page.value = 1
+    totalCount.value = 0
+  }
   loading.value = true
   try {
     const { data } = await getPagedPosts(page.value, pageSize)
@@ -33,7 +35,17 @@ function loadMore() {
   loadPosts()
 }
 
-onMounted(loadPosts)
+const unsubscribe = router.afterEach((to, from) => {
+  if (to.name === 'feed' && from.name !== 'feed') {
+    loadPosts(true)
+  }
+})
+
+onMounted(() => loadPosts(true))
+
+onUnmounted(() => {
+  unsubscribe()
+})
 </script>
 
 <template>
@@ -41,6 +53,10 @@ onMounted(loadPosts)
     <AppHeader />
 
     <main class="max-w-2xl mx-auto px-4 py-6 space-y-4">
+      <div v-if="loading && posts.length === 0" class="text-center py-12 text-slate-400">
+        Cargando...
+      </div>
+
       <PostCard v-for="post in posts" :key="post.id" :post="post" />
 
       <div v-if="!loading && posts.length === 0" class="text-center py-12 text-slate-400">
