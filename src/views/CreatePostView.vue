@@ -40,7 +40,7 @@ async function handleSubmit() {
       postContent: postContent.value.trim(),
       userId: Number(authStore.user?.id),
       imageUrl: imageUrl.value.trim() || null,
-      categoryId: selectedCategoryIds.value,
+      categoryIds: selectedCategoryIds.value,
     })
 
     router.push({ name: 'feed' })
