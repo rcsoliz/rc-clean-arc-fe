@@ -58,14 +58,21 @@ function openPost() {
 <template>
   <article class="bg-white border border-slate-200 rounded-2xl p-5">
     <div class="flex items-center gap-3 mb-3">
-      <div
-        :class="getAvatarColor(post.username)"
-        class="w-10 h-10 rounded-full text-white flex items-center justify-center text-sm font-medium flex-shrink-0"
-      >
-        {{ getInitials(post.username) }}
-      </div>
+      <RouterLink :to="{ name: 'profile', params: { id: post.userId } }">
+        <div
+          :class="getAvatarColor(post.username)"
+          class="w-10 h-10 rounded-full text-white flex items-center justify-center text-sm font-medium flex-shrink-0 hover:opacity-80 transition-opacity"
+        >
+          {{ getInitials(post.username) }}
+        </div>
+      </RouterLink>
       <div>
-        <p class="text-sm font-medium text-slate-900">{{ post.username }}</p>
+        <RouterLink
+          :to="{ name: 'profile', params: { id: post.userId } }"
+          class="text-sm font-medium text-slate-900 hover:underline"
+        >
+          {{ post.username }}
+        </RouterLink>
         <p class="text-xs text-slate-400">{{ formatRelativeTime(post.created) }}</p>
       </div>
     </div>
@@ -76,6 +83,17 @@ function openPost() {
     >
       {{ post.postContent }}
     </p>
+
+    <!-- ← agregar este bloque -->
+    <div v-if="post.imageUrl" class="mb-3 rounded-xl overflow-hidden bg-slate-100">
+      <img
+        :src="post.imageUrl"
+        :alt="post.postContent"
+        @click="openPost"
+        class="w-full max-h-96 object-cover cursor-pointer"
+        @error="$event.target.style.display = 'none'"
+      />
+    </div>
 
     <div v-if="post.categories?.length" class="flex flex-wrap gap-1.5 mb-3">
       <span

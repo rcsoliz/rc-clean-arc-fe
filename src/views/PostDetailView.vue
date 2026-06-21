@@ -93,7 +93,26 @@ onMounted(loadData)
     <AppHeader />
 
     <main class="max-w-2xl mx-auto px-4 py-6">
-      <div v-if="loading" class="text-center py-12 text-slate-400">Cargando...</div>
+      <div v-if="loading" class="space-y-4">
+        <div class="bg-white border border-slate-200 rounded-2xl p-5 animate-pulse">
+          <div class="flex items-center gap-3 mb-3">
+            <div class="w-10 h-10 rounded-full bg-slate-200"></div>
+            <div class="space-y-2">
+              <div class="h-3 w-24 bg-slate-200 rounded"></div>
+              <div class="h-2.5 w-16 bg-slate-100 rounded"></div>
+            </div>
+          </div>
+          <div class="space-y-2">
+            <div class="h-3 bg-slate-100 rounded w-full"></div>
+            <div class="h-3 bg-slate-100 rounded w-full"></div>
+            <div class="h-3 bg-slate-100 rounded w-3/4"></div>
+          </div>
+        </div>
+        <div class="bg-white border border-slate-200 rounded-2xl p-5 animate-pulse">
+          <div class="h-4 w-32 bg-slate-200 rounded mb-4"></div>
+          <div class="h-12 bg-slate-100 rounded-xl"></div>
+        </div>
+      </div>
 
       <template v-else-if="post">
         <article class="bg-white border border-slate-200 rounded-2xl p-5 mb-4">
@@ -113,6 +132,16 @@ onMounted(loadData)
           <p class="text-sm text-slate-700 leading-relaxed mb-3 whitespace-pre-wrap">
             {{ post.postContent }}
           </p>
+
+          <!-- ← agregar este bloque -->
+          <div v-if="post.imageUrl" class="mb-3 rounded-xl overflow-hidden bg-slate-100">
+            <img
+              :src="post.imageUrl"
+              :alt="post.postContent"
+              class="w-full max-h-[32rem] object-cover"
+              @error="$event.target.style.display = 'none'"
+            />
+          </div>
 
           <div v-if="post.categories?.length" class="flex flex-wrap gap-1.5">
             <span

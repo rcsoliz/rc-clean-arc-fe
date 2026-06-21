@@ -11,3 +11,11 @@ export function getPostById(id) {
 export function createPost(payload) {
   return api.post('/Post', payload)
 }
+
+export function getPostsByUserId(userId) {
+  return api.get(`/Post/user/${userId}`)
+}
+
+export function filterPosts(filter) {
+  return api.post('/Post/filter', filter)
+}

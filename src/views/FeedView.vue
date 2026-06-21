@@ -3,6 +3,7 @@ import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import AppHeader from '@/components/layout/AppHeader.vue'
 import PostCard from '@/components/posts/PostCard.vue'
+import PostCardSkeleton from '@/components/posts/PostCardSkeleton.vue'
 import { getPagedPosts } from '@/services/postService'
 
 const router = useRouter()
@@ -53,9 +54,9 @@ onUnmounted(() => {
     <AppHeader />
 
     <main class="max-w-2xl mx-auto px-4 py-6 space-y-4">
-      <div v-if="loading && posts.length === 0" class="text-center py-12 text-slate-400">
-        Cargando...
-      </div>
+      <template v-if="loading && posts.length === 0">
+        <PostCardSkeleton v-for="n in 3" :key="n" />
+      </template>
 
       <PostCard v-for="post in posts" :key="post.id" :post="post" />
 
