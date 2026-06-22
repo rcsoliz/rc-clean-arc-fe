@@ -55,7 +55,11 @@ onUnmounted(() => {
 
     <main class="max-w-2xl mx-auto px-4 py-6 space-y-4">
       <template v-if="loading && posts.length === 0">
-        <PostCardSkeleton v-for="n in 3" :key="n" />
+        <PostCardSkeleton
+          v-for="n in 3"
+          :key="n"
+          :style="{ animationDelay: `${(n - 1) * 0.1}s` }"
+        />
       </template>
 
       <PostCard v-for="post in posts" :key="post.id" :post="post" />

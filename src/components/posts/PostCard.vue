@@ -56,7 +56,9 @@ function openPost() {
 </script>
 
 <template>
-  <article class="bg-white border border-slate-200 rounded-2xl p-5">
+  <article
+    class="bg-white border border-slate-200 rounded-2xl p-5 transition-shadow hover:shadow-md"
+  >
     <div class="flex items-center gap-3 mb-3">
       <RouterLink :to="{ name: 'profile', params: { id: post.userId } }">
         <div

@@ -1,5 +1,8 @@
 <template>
-  <div class="bg-white border border-slate-200 rounded-2xl p-5 animate-pulse">
+  <div
+    class="bg-white border border-slate-200 rounded-2xl p-5 animate-pulse"
+    style="animation-fill-mode: both"
+  >
     <div class="flex items-center gap-3 mb-3">
       <div class="w-10 h-10 rounded-full bg-slate-200 flex-shrink-0"></div>
       <div class="space-y-2">

@@ -14,6 +14,7 @@ import {
 } from '@/utils/formatDate'
 import { useRouter } from 'vue-router'
 import { deletePost } from '@/services/postService'
+import ConfirmModal from '@/components/ui/ConfirmModal.vue'
 
 const route = useRoute()
 const authStore = useAuthStore()
@@ -37,6 +38,9 @@ const hasMoreComments = computed(() => rootComments.value.length > visibleCount.
 const router = useRouter()
 const showOptions = ref(false)
 const isOwner = computed(() => Number(authStore.user?.id) === post.value?.userId)
+
+const showDeleteModal = ref(false)
+const deleting = ref(false)
 
 function showMoreComments() {
   visibleCount.value += 5
@@ -103,12 +107,20 @@ async function handleDelete(commentId) {
 }
 
 async function handleDeletePost() {
-  if (!confirm('¿Estás seguro de que quieres eliminar esta publicación?')) return
-  const categoryIds = post.value?.categories?.map((c) => c.categoryId) ?? []
-  await deletePost(postId.value, categoryIds)
-  router.push({ name: 'feed' })
+  deleting.value = true
+  try {
+    const categoryIds = post.value?.categories?.map((c) => c.categoryId) ?? []
+    await deletePost(postId.value, categoryIds)
+    router.push({ name: 'feed' })
+  } finally {
+    deleting.value = false
+    showDeleteModal.value = false
+  }
 }
-
+function openDeleteModal() {
+  showDeleteModal.value = true
+  showOptions.value = false
+}
 onMounted(loadData)
 </script>
 
@@ -156,7 +168,7 @@ onMounted(loadData)
           <!-- Menú de opciones solo para el autor -->
           <div v-if="isOwner" class="relative">
             <button
-              @click="showOptions = !showOptions"
+              @click.stop="showOptions = !showOptions"
               class="text-slate-400 hover:text-slate-600 p-1 rounded-lg hover:bg-slate-100"
             >
               <svg
@@ -174,54 +186,56 @@ onMounted(loadData)
                 />
               </svg>
             </button>
-
-            <div
-              v-if="showOptions"
-              v-click-outside="() => (showOptions = false)"
-              class="absolute right-0 mt-1 w-40 bg-white border border-slate-200 rounded-xl shadow-lg z-10 overflow-hidden"
-            >
-              <RouterLink
-                :to="{ name: 'edit-post', params: { id: postId } }"
-                class="flex items-center gap-2 px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50"
-                @click="showOptions = false"
+            <Transition name="dropdown">
+              <div
+                v-if="showOptions"
+                v-click-outside="() => (showOptions = false)"
+                @click.stop
+                class="absolute right-0 mt-1 w-40 bg-white border border-slate-200 rounded-xl shadow-lg z-10 overflow-hidden"
               >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke-width="1.8"
-                  stroke="currentColor"
-                  class="w-4 h-4"
+                <RouterLink
+                  :to="{ name: 'edit-post', params: { id: postId } }"
+                  class="flex items-center gap-2 px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50"
+                  @click="showOptions = false"
                 >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125"
-                  />
-                </svg>
-                Editar
-              </RouterLink>
-              <button
-                @click="handleDeletePost"
-                class="w-full flex items-center gap-2 px-4 py-2.5 text-sm text-red-600 hover:bg-red-50"
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke-width="1.8"
-                  stroke="currentColor"
-                  class="w-4 h-4"
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke-width="1.8"
+                    stroke="currentColor"
+                    class="w-4 h-4"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125"
+                    />
+                  </svg>
+                  Editar
+                </RouterLink>
+                <button
+                  @click="openDeleteModal()"
+                  class="w-full flex items-center gap-2 px-4 py-2.5 text-sm text-red-600 hover:bg-red-50"
                 >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0"
-                  />
-                </svg>
-                Eliminar
-              </button>
-            </div>
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke-width="1.8"
+                    stroke="currentColor"
+                    class="w-4 h-4"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0"
+                    />
+                  </svg>
+                  Eliminar
+                </button>
+              </div>
+            </Transition>
           </div>
 
           <p class="text-sm text-slate-700 leading-relaxed mb-3 whitespace-pre-wrap">
@@ -311,4 +325,14 @@ onMounted(loadData)
       </div>
     </main>
   </div>
+  <ConfirmModal
+    v-if="showDeleteModal"
+    title="Eliminar publicación"
+    message="Esta acción no se puede deshacer. ¿Quieres eliminar esta publicación permanentemente?"
+    confirm-text="Eliminar"
+    :danger="true"
+    :loading="deleting"
+    @confirm="handleDeletePost"
+    @cancel="showDeleteModal = false"
+  />
 </template>
