@@ -8,7 +8,7 @@ function userFromToken(token) {
   try {
     const decoded = jwtDecode(token)
     return {
-      id: decoded['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier'],
+      id: Number(decoded['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier']),
       username: decoded['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name'],
       email: decoded['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress'],
     }
