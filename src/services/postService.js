@@ -19,3 +19,11 @@ export function getPostsByUserId(userId) {
 export function filterPosts(filter) {
   return api.post('/Post/filter', filter)
 }
+
+export function updatePost(id, payload) {
+  return api.put(`/PostCategories/${id}`, payload)
+}
+
+export function deletePost(id, categoryIds) {
+  return api.delete(`/PostCategories/${id}`, { data: categoryIds })
+}
