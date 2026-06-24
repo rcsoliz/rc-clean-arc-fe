@@ -3,6 +3,7 @@ import { useAuthStore } from '@/stores/auth'
 import { useRouter } from 'vue-router'
 import { getInitials, getAvatarColor } from '@/utils/formatDate'
 import SearchBar from './SearchBar.vue' // ← agregar
+import NotificationBell from './NotificationBell.vue'
 
 const authStore = useAuthStore()
 const router = useRouter()
@@ -44,7 +45,7 @@ function handleLogout() {
         >
           {{ getInitials(authStore.user?.username) }}
         </RouterLink>
-
+        <NotificationBell />
         <button
           @click="handleLogout"
           class="text-sm text-slate-500 hover:text-red-600 transition-colors"

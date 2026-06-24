@@ -6,6 +6,9 @@ import { createPinia } from 'pinia'
 import App from './App.vue'
 import router from './router'
 
+import { useAuthStore } from '@/stores/auth'
+import { useNotificationStore } from '@/stores/notifications'
+
 const app = createApp(App)
 
 app.use(createPinia())
@@ -27,3 +30,9 @@ app.directive('click-outside', {
 })
 
 app.mount('#app')
+
+const authStore = useAuthStore()
+if (authStore.isAuthenticated) {
+  const notificationStore = useNotificationStore()
+  notificationStore.startConnection()
+}

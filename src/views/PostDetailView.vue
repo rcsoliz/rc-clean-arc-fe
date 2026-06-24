@@ -1,10 +1,8 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
-import { useRoute } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import AppHeader from '@/components/layout/AppHeader.vue'
 import CommentThread from '@/components/comments/CommentThread.vue'
-import { getPostById } from '@/services/postService'
 import { getCommentsByPostId, createComment, deleteComment } from '@/services/commentService'
 import {
   formatRelativeTime,
@@ -12,8 +10,9 @@ import {
   getAvatarColor,
   getCategoryColor,
 } from '@/utils/formatDate'
-import { useRouter } from 'vue-router'
-import { deletePost } from '@/services/postService'
+import { useRoute, useRouter } from 'vue-router'
+import { getPostById, deletePost } from '@/services/postService'
+
 import ConfirmModal from '@/components/ui/ConfirmModal.vue'
 
 const route = useRoute()
@@ -324,15 +323,15 @@ onMounted(loadData)
         </RouterLink>
       </div>
     </main>
+    <ConfirmModal
+      v-if="showDeleteModal"
+      title="Eliminar publicación"
+      message="Esta acción no se puede deshacer. ¿Quieres eliminar esta publicación permanentemente?"
+      confirm-text="Eliminar"
+      :danger="true"
+      :loading="deleting"
+      @confirm="handleDeletePost"
+      @cancel="showDeleteModal = false"
+    />
   </div>
-  <ConfirmModal
-    v-if="showDeleteModal"
-    title="Eliminar publicación"
-    message="Esta acción no se puede deshacer. ¿Quieres eliminar esta publicación permanentemente?"
-    confirm-text="Eliminar"
-    :danger="true"
-    :loading="deleting"
-    @confirm="handleDeletePost"
-    @cancel="showDeleteModal = false"
-  />
 </template>

@@ -53,15 +53,14 @@ function confirmDelete() {
         </button>
       </div>
     </div>
+    <ConfirmModal
+      v-if="showDeleteModal"
+      title="Eliminar comentario"
+      message="¿Quieres eliminar este comentario? Las respuestas a este comentario quedarán visibles."
+      confirm-text="Eliminar"
+      :danger="true"
+      @confirm="confirmDelete"
+      @cancel="showDeleteModal = false"
+    />
   </div>
-
-  <ConfirmModal
-    v-if="showDeleteModal"
-    title="Eliminar comentario"
-    message="¿Quieres eliminar este comentario? Las respuestas a este comentario quedarán visibles."
-    confirm-text="Eliminar"
-    :danger="true"
-    @confirm="confirmDelete"
-    @cancel="showDeleteModal = false"
-  />
 </template>

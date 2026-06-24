@@ -2,6 +2,7 @@ import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import { jwtDecode } from 'jwt-decode'
 import api, { setTokens, clearTokens, getAccessToken } from '@/services/api'
+import { useNotificationStore } from '@/stores/notifications'
 
 function userFromToken(token) {
   if (!token) return null
@@ -25,10 +26,13 @@ export const useAuthStore = defineStore('auth', () => {
 
   async function login(email, password) {
     const { data } = await api.post('/Authentication/login', { email, password })
-
     setTokens(data.accessToken, data.refreshToken)
     accessToken.value = data.accessToken
     user.value = userFromToken(data.accessToken)
+
+    // ← Iniciar conexión SignalR
+    const notificationStore = useNotificationStore()
+    await notificationStore.startConnection()
 
     return data
   }
@@ -39,6 +43,8 @@ export const useAuthStore = defineStore('auth', () => {
   }
 
   function logout() {
+    const notificationStore = useNotificationStore()
+    notificationStore.stopConnection()
     clearTokens()
     accessToken.value = null
     user.value = null

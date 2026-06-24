@@ -98,14 +98,16 @@ function openPost() {
     </div>
 
     <div v-if="post.categories?.length" class="flex flex-wrap gap-1.5 mb-3">
-      <span
+      <RouterLink
         v-for="cat in post.categories"
         :key="cat.categoryId"
+        :to="{ name: 'feed', query: { categories: cat.categoryId } }"
         :class="getCategoryColor(cat.categoryId)"
-        class="text-xs font-medium px-2.5 py-0.5 rounded-full"
+        class="text-xs font-medium px-2.5 py-0.5 rounded-full hover:opacity-75 transition-opacity cursor-pointer"
+        @click.stop
       >
         {{ cat.name }}
-      </span>
+      </RouterLink>
     </div>
 
     <div class="flex items-center gap-5 pt-3 border-t border-slate-100">
