@@ -1,8 +1,9 @@
 <script setup>
 import { ref } from 'vue'
 import { useAuthStore } from '@/stores/auth'
-import { formatRelativeTime, getInitials, getAvatarColor } from '@/utils/formatDate'
+import { formatRelativeTime } from '@/utils/formatDate'
 import ConfirmModal from '@/components/ui/ConfirmModal.vue'
+import UserAvatar from '@/components/ui/UserAvatar.vue'
 
 const props = defineProps({
   comment: { type: Object, required: true },
@@ -10,7 +11,6 @@ const props = defineProps({
 })
 
 const emit = defineEmits(['delete', 'reply'])
-
 const authStore = useAuthStore()
 const showDeleteModal = ref(false)
 
@@ -22,9 +22,7 @@ function confirmDelete() {
 
 <template>
   <div class="flex gap-3">
-    <div :class="getAvatarColor(comment.username)" class="w-8 h-8 rounded-full text-white flex items-center justify-center text-xs font-medium flex-shrink-0">
-      {{ getInitials(comment.username) }}
-    </div>
+    <UserAvatar :username="comment.username" :avatar-url="comment.avatarUrl" size="sm" />
     <div class="flex-1">
       <div class="bg-slate-50 dark:bg-slate-800 rounded-xl px-3 py-2">
         <p class="text-sm font-medium text-slate-900 dark:text-white">{{ comment.username }}</p>

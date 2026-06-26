@@ -8,6 +8,7 @@ import PostCardSkeleton from '@/components/posts/PostCardSkeleton.vue'
 import { getUserById } from '@/services/userService'
 import { getPagedPostsByUserId } from '@/services/postService'
 import { getInitials, getAvatarColor } from '@/utils/formatDate'
+import UserAvatar from '@/components/ui/UserAvatar.vue'
 
 const route = useRoute()
 const authStore = useAuthStore()
@@ -90,7 +91,7 @@ watch(userId, async () => {
       <!-- Skeleton de cabecera de perfil -->
       <div v-if="loading && !profileUser" class="bg-white border border-slate-200 rounded-2xl p-6 mb-6 animate-pulse">
         <div class="flex items-center gap-4">
-          <div class="w-16 h-16 rounded-full bg-slate-200 flex-shrink-0"></div>
+          <div class="w-16 h-16 rounded-full bg-slate-200 dark:bg-slate-700 flex-shrink-0"></div>
           <div class="space-y-2 flex-1">
             <div class="h-4 w-32 bg-slate-200 rounded"></div>
             <div class="h-3 w-48 bg-slate-100 rounded"></div>
@@ -100,18 +101,14 @@ watch(userId, async () => {
       </div>
 
       <template v-if="profileUser">
-        <div class="bg-white border border-slate-200 rounded-2xl p-6 mb-6">
+        <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl p-6 mb-6">
           <div class="flex items-center gap-4">
-            <div
-              :class="getAvatarColor(profileUser.username)"
-              class="w-16 h-16 rounded-full text-white flex items-center justify-center text-xl font-medium flex-shrink-0"
-            >
-              {{ getInitials(profileUser.username) }}
-            </div>
+            <UserAvatar :username="profileUser.username" :avatar-url="profileUser.avatarUrl" size="lg" />
             <div>
-              <h1 class="text-lg font-semibold text-slate-900">{{ profileUser.username }}</h1>
-              <p class="text-sm text-slate-500">{{ profileUser.email }}</p>
-              <p class="text-xs text-slate-400 mt-1">
+              <h1 class="text-lg font-semibold text-slate-900 dark:text-white">{{ profileUser.username }}</h1>
+              <p class="text-sm text-slate-500 dark:text-slate-400">{{ profileUser.email }}</p>
+              <p v-if="profileUser.bio" class="text-sm text-slate-600 dark:text-slate-300 mt-1">{{ profileUser.bio }}</p>
+              <p class="text-xs text-slate-400 dark:text-slate-500 mt-1">
                 {{ totalCount }} {{ totalCount === 1 ? 'publicación' : 'publicaciones' }}
               </p>
             </div>

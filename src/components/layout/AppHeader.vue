@@ -2,9 +2,9 @@
 import { useAuthStore } from '@/stores/auth'
 import { useThemeStore } from '@/stores/theme'
 import { useRouter } from 'vue-router'
-import { getInitials, getAvatarColor } from '@/utils/formatDate'
 import SearchBar from './SearchBar.vue'
 import NotificationBell from './NotificationBell.vue'
+import UserAvatar from '@/components/ui/UserAvatar.vue'
 
 const authStore = useAuthStore()
 const themeStore = useThemeStore()
@@ -40,8 +40,8 @@ function handleLogout() {
 
         <NotificationBell />
 
-        <RouterLink v-if="authStore.user?.id" :to="{ name: 'profile', params: { id: authStore.user.id } }" :class="getAvatarColor(authStore.user?.username)" class="w-8 h-8 rounded-full text-white flex items-center justify-center text-xs font-medium hover:opacity-80 transition-opacity" :title="authStore.user?.username">
-          {{ getInitials(authStore.user?.username) }}
+        <RouterLink v-if="authStore.user?.id" :to="{ name: 'profile', params: { id: authStore.user.id } }" class="hover:opacity-80 transition-opacity" :title="authStore.user?.username">
+          <UserAvatar :username="authStore.user?.username" :avatar-url="authStore.user?.avatarUrl" size="sm" />
         </RouterLink>
 
         <button @click="handleLogout" class="text-sm text-slate-500 dark:text-slate-400 hover:text-red-600 transition-colors">Salir</button>
