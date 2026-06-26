@@ -18,6 +18,23 @@ function userFromToken(token) {
   }
 }
 
+function updateUserData(data) {
+  if (user.value) {
+    user.value = { ...user.value, ...data }
+  }
+}
+
+return {
+  user,
+  accessToken,
+  isAuthenticated,
+  login,
+  register,
+  logout,
+  updateUserData,  // ← exportar
+}
+
+
 export const useAuthStore = defineStore('auth', () => {
   const accessToken = ref(getAccessToken())
   const user = ref(userFromToken(accessToken.value))

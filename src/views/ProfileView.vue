@@ -117,12 +117,17 @@ watch(userId, async () => {
             </div>
           </div>
 
-          <p
-            v-if="isOwnProfile"
-            class="text-xs text-violet-600 bg-violet-50 rounded-lg px-3 py-1.5 mt-4 inline-block"
-          >
+        <div class="flex items-center gap-2 mt-4">
+          <p class="text-xs text-violet-600 bg-violet-50 dark:bg-violet-950 rounded-lg px-3 py-1.5">
             Este es tu perfil
           </p>
+          <RouterLink
+            to="/profile/edit"
+            class="text-xs font-medium text-slate-600 dark:text-slate-400 border border-slate-300 dark:border-slate-600 rounded-lg px-3 py-1.5 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+          >
+            Editar perfil
+          </RouterLink>
+        </div>
         </div>
 
         <div class="space-y-4">
