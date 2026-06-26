@@ -18,23 +18,6 @@ function userFromToken(token) {
   }
 }
 
-function updateUserData(data) {
-  if (user.value) {
-    user.value = { ...user.value, ...data }
-  }
-}
-
-return {
-  user,
-  accessToken,
-  isAuthenticated,
-  login,
-  register,
-  logout,
-  updateUserData,  // ← exportar
-}
-
-
 export const useAuthStore = defineStore('auth', () => {
   const accessToken = ref(getAccessToken())
   const user = ref(userFromToken(accessToken.value))
@@ -47,7 +30,6 @@ export const useAuthStore = defineStore('auth', () => {
     accessToken.value = data.accessToken
     user.value = userFromToken(data.accessToken)
 
-    // ← Iniciar conexión SignalR
     const notificationStore = useNotificationStore()
     await notificationStore.startConnection()
 
@@ -67,6 +49,12 @@ export const useAuthStore = defineStore('auth', () => {
     user.value = null
   }
 
+  function updateUserData(data) {
+    if (user.value) {
+      user.value = { ...user.value, ...data }
+    }
+  }
+
   return {
     user,
     accessToken,
@@ -74,5 +62,6 @@ export const useAuthStore = defineStore('auth', () => {
     login,
     register,
     logout,
+    updateUserData,
   }
 })

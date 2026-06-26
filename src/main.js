@@ -34,7 +34,7 @@ app.mount('#app')
 
 const authStore = useAuthStore()
 const themeStore = useThemeStore()
-themeStore.apply()
+//themeStore.apply()
 
 if (authStore.isAuthenticated) {
   const notificationStore = useNotificationStore()
