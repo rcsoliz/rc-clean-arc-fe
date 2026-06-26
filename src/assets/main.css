@@ -55,3 +55,30 @@
 .modal-leave-to {
   opacity: 0;
 }
+
+/* Toast */
+.toast-enter-active {
+  transition: all 0.25s ease;
+}
+.toast-leave-active {
+  transition: all 0.2s ease;
+}
+.toast-enter-from {
+  opacity: 0;
+  transform: translateX(100%) scale(0.95);
+}
+.toast-leave-to {
+  opacity: 0;
+  transform: translateX(100%);
+}
+
+/* Scroll to top button */
+.fade-up-enter-active,
+.fade-up-leave-active {
+  transition: all 0.2s ease;
+}
+.fade-up-enter-from,
+.fade-up-leave-to {
+  opacity: 0;
+  transform: translateY(8px);
+}

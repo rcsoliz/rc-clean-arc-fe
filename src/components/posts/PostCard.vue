@@ -2,6 +2,7 @@
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
+import { useToastStore } from '@/stores/toast'
 import { createLike, deleteLike } from '@/services/likeService'
 import {
   formatRelativeTime,
@@ -16,6 +17,7 @@ const props = defineProps({
 
 const router = useRouter()
 const authStore = useAuthStore()
+const toast = useToastStore()
 
 const likeCount = ref(props.post.likeCount ?? 0)
 const likedByMe = ref(props.post.isLikedByCurrentUser ?? false)
@@ -52,6 +54,16 @@ async function toggleLike() {
 
 function openPost() {
   router.push({ name: 'post-detail', params: { id: props.post.id } })
+}
+
+async function sharePost() {
+  const url = `${window.location.origin}/posts/${props.post.id}`
+  try {
+    await navigator.clipboard.writeText(url)
+    toast.success('¡Link copiado al portapapeles!')
+  } catch {
+    toast.error('No se pudo copiar el link')
+  }
 }
 </script>
 
@@ -93,6 +105,7 @@ function openPost() {
         :alt="post.postContent"
         @click="openPost"
         class="w-full max-h-96 object-cover cursor-pointer"
+        loading="lazy"
         @error="$event.target.style.display = 'none'"
       />
     </div>
@@ -153,6 +166,16 @@ function openPost() {
           />
         </svg>
         {{ post.commentCount }}
+      </button>
+
+      <button
+        @click.stop="sharePost"
+        class="flex items-center gap-1.5 text-sm text-slate-500 hover:text-violet-600 transition-colors ml-auto"
+        title="Copiar link"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" class="w-5 h-5">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M7.217 10.907a2.25 2.25 0 1 0 0 2.186m0-2.186c.18.324.283.696.283 1.093s-.103.77-.283 1.093m0-2.186 9.566-5.314m-9.566 7.5 9.566 5.314m0 0a2.25 2.25 0 1 0 3.935 2.186 2.25 2.25 0 0 0-3.935-2.186Zm0-12.814a2.25 2.25 0 1 0 3.933-2.185 2.25 2.25 0 0 0-3.933 2.185Z" />
+        </svg>
       </button>
     </div>
   </article>

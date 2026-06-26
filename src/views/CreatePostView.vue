@@ -1,20 +1,30 @@
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
+import { useToastStore } from '@/stores/toast'
 import AppHeader from '@/components/layout/AppHeader.vue'
 import { createPost } from '@/services/postService'
 import { getAllCategories } from '@/services/categoryService'
 
 const router = useRouter()
 const authStore = useAuthStore()
+const toast = useToastStore()
 
+const MAX_CHARS = 1000
 const postContent = ref('')
 const imageUrl = ref('')
 const selectedCategoryIds = ref([])
 const categories = ref([])
 const errorMessage = ref('')
 const submitting = ref(false)
+
+const charsLeft = computed(() => MAX_CHARS - postContent.value.length)
+const charsColor = computed(() => {
+  if (charsLeft.value < 0) return 'text-red-500'
+  if (charsLeft.value < 100) return 'text-amber-500'
+  return 'text-slate-400'
+})
 
 async function loadCategories() {
   const { data } = await getAllCategories()
@@ -42,14 +52,14 @@ async function handleSubmit() {
       imageUrl: imageUrl.value.trim() || null,
       categoryIds: selectedCategoryIds.value,
     })
-
+    toast.success('¡Publicación creada!')
     router.push({ name: 'feed' })
   } catch (error) {
-    if (error.response?.data?.errors) {
-      errorMessage.value = Object.values(error.response.data.errors).flat().join(' ')
-    } else {
-      errorMessage.value = 'Ocurrió un error al crear el post.'
-    }
+    const msg = error.response?.data?.errors
+      ? Object.values(error.response.data.errors).flat().join(' ')
+      : 'Ocurrió un error al crear el post.'
+    errorMessage.value = msg
+    toast.error(msg)
   } finally {
     submitting.value = false
   }
@@ -78,6 +88,9 @@ onMounted(loadCategories)
               placeholder="Escribe el contenido de tu post..."
               class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-violet-500 resize-none"
             ></textarea>
+            <div class="flex justify-end mt-1">
+              <span class="text-xs" :class="charsColor">{{ charsLeft }} caracteres restantes</span>
+            </div>
           </div>
 
           <div>
