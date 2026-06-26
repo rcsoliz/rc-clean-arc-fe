@@ -8,18 +8,12 @@ import router from './router'
 
 import { useAuthStore } from '@/stores/auth'
 import { useNotificationStore } from '@/stores/notifications'
+import { useThemeStore } from '@/stores/theme'
 
 const app = createApp(App)
 
 app.use(createPinia())
 app.use(router)
-app.mount('#app')
-
-const authStore = useAuthStore()
-if (authStore.isAuthenticated) {
-  const notificationStore = useNotificationStore()
-  notificationStore.startConnection()
-}
 
 // Directiva para cerrar dropdowns al hacer clic fuera
 app.directive('click-outside', {
@@ -35,3 +29,14 @@ app.directive('click-outside', {
     document.removeEventListener('click', el._clickOutside)
   },
 })
+
+app.mount('#app')
+
+const authStore = useAuthStore()
+const themeStore = useThemeStore()
+themeStore.apply()
+
+if (authStore.isAuthenticated) {
+  const notificationStore = useNotificationStore()
+  notificationStore.startConnection()
+}
