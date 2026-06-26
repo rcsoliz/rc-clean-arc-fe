@@ -42,11 +42,18 @@ function goToPost(postId) {
 
       <!-- Badge contador -->
       <span
-        v-if="notificationStore.unreadCount > 0"
+        v-if="notificationStore.unreadCount > 0 && !notificationStore.connectionError"
         class="absolute -top-0.5 -right-0.5 bg-red-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center font-medium"
       >
         {{ notificationStore.unreadCount > 9 ? '9+' : notificationStore.unreadCount }}
       </span>
+
+      <!-- Indicador de error de conexión -->
+      <span
+        v-if="notificationStore.connectionError"
+        class="absolute -top-0.5 -right-0.5 bg-amber-400 rounded-full w-2.5 h-2.5"
+        title="Sin conexión a notificaciones en tiempo real"
+      ></span>
     </button>
 
     <!-- Panel de notificaciones -->

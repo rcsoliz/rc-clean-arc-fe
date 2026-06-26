@@ -18,8 +18,8 @@ const router = useRouter()
 const authStore = useAuthStore()
 
 const likeCount = ref(props.post.likeCount ?? 0)
-const likedByMe = ref(false)
-const myLikeId = ref(null)
+const likedByMe = ref(props.post.isLikedByCurrentUser ?? false)
+const myLikeId = ref(props.post.currentUserLikeId ?? null)
 const likeLoading = ref(false)
 
 async function toggleLike() {

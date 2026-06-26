@@ -6,11 +6,14 @@ import { getAccessToken } from '@/services/api'
 export const useNotificationStore = defineStore('notifications', () => {
   const notifications = ref([])
   const unreadCount = ref(0)
+  const connectionError = ref(false)
   let connection = null
 
   async function startConnection() {
+    const hubUrl = `${import.meta.env.VITE_HUB_BASE_URL}/hubs/notifications`
+
     connection = new signalR.HubConnectionBuilder()
-      .withUrl('https://localhost:7255/hubs/notifications', {
+      .withUrl(hubUrl, {
         accessTokenFactory: () => getAccessToken() ?? '',
       })
       .withAutomaticReconnect()
@@ -21,10 +24,19 @@ export const useNotificationStore = defineStore('notifications', () => {
       unreadCount.value++
     })
 
+    connection.onreconnecting(() => {
+      connectionError.value = true
+    })
+
+    connection.onreconnected(() => {
+      connectionError.value = false
+    })
+
     try {
       await connection.start()
-    } catch (err) {
-      console.error('SignalR connection error:', err)
+      connectionError.value = false
+    } catch {
+      connectionError.value = true
     }
   }
 
@@ -42,6 +54,7 @@ export const useNotificationStore = defineStore('notifications', () => {
   return {
     notifications,
     unreadCount,
+    connectionError,
     startConnection,
     stopConnection,
     markAllRead,

@@ -16,6 +16,10 @@ export function getPostsByUserId(userId) {
   return api.get(`/Post/user/${userId}`)
 }
 
+export function getPagedPostsByUserId(userId, page, pageSize) {
+  return api.get(`/Post/user/${userId}`, { params: { page, pageSize } })
+}
+
 export function filterPosts(filter) {
   return api.post('/Post/filter', filter)
 }
