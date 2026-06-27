@@ -84,18 +84,18 @@ watch(userId, async () => {
 </script>
 
 <template>
-  <div class="min-h-screen bg-slate-50">
+  <div class="min-h-screen bg-slate-50 dark:bg-slate-950">
     <AppHeader />
 
     <main class="max-w-2xl mx-auto px-4 py-6">
       <!-- Skeleton de cabecera de perfil -->
-      <div v-if="loading && !profileUser" class="bg-white border border-slate-200 rounded-2xl p-6 mb-6 animate-pulse">
+      <div v-if="loading && !profileUser" class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl p-6 mb-6 animate-pulse">
         <div class="flex items-center gap-4">
           <div class="w-16 h-16 rounded-full bg-slate-200 dark:bg-slate-700 flex-shrink-0"></div>
           <div class="space-y-2 flex-1">
-            <div class="h-4 w-32 bg-slate-200 rounded"></div>
-            <div class="h-3 w-48 bg-slate-100 rounded"></div>
-            <div class="h-3 w-20 bg-slate-100 rounded"></div>
+            <div class="h-4 w-32 bg-slate-200 dark:bg-slate-700 rounded"></div>
+            <div class="h-3 w-48 bg-slate-100 dark:bg-slate-800 rounded"></div>
+            <div class="h-3 w-20 bg-slate-100 dark:bg-slate-800 rounded"></div>
           </div>
         </div>
       </div>

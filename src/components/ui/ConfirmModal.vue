@@ -22,11 +22,11 @@ defineEmits(['confirm', 'cancel'])
         ></div>
 
         <!-- Modal -->
-        <div class="relative bg-white rounded-2xl shadow-xl w-full max-w-sm p-6 animate-fade-in">
+        <div class="relative bg-white dark:bg-slate-900 rounded-2xl shadow-xl w-full max-w-sm p-6 animate-fade-in">
           <div class="mb-4">
             <div
               class="inline-flex items-center justify-center w-10 h-10 rounded-full mb-3"
-              :class="danger ? 'bg-red-100' : 'bg-violet-100'"
+              :class="danger ? 'bg-red-100 dark:bg-red-950' : 'bg-violet-100 dark:bg-violet-950'"
             >
               <svg
                 v-if="danger"
@@ -60,15 +60,15 @@ defineEmits(['confirm', 'cancel'])
               </svg>
             </div>
 
-            <h3 class="text-base font-semibold text-slate-900">{{ title }}</h3>
-            <p class="text-sm text-slate-500 mt-1">{{ message }}</p>
+            <h3 class="text-base font-semibold text-slate-900 dark:text-white">{{ title }}</h3>
+            <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">{{ message }}</p>
           </div>
 
           <div class="flex gap-2 justify-end">
             <button
               @click="$emit('cancel')"
               :disabled="loading"
-              class="text-sm font-medium text-slate-600 px-4 py-2 rounded-lg hover:bg-slate-100 transition-colors disabled:opacity-50"
+              class="text-sm font-medium text-slate-600 dark:text-slate-400 px-4 py-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors disabled:opacity-50"
             >
               {{ cancelText }}
             </button>

@@ -23,7 +23,7 @@ function goToPost(postId) {
   <div class="relative">
     <button
       @click.stop="togglePanel"
-      class="relative text-slate-500 hover:text-slate-700 p-1 rounded-lg hover:bg-slate-100 transition-colors"
+      class="relative text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-white p-1 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
     >
       <svg
         xmlns="http://www.w3.org/2000/svg"
@@ -62,10 +62,10 @@ function goToPost(postId) {
         v-if="showPanel"
         v-click-outside="() => (showPanel = false)"
         @click.stop
-        class="absolute right-0 mt-2 w-80 bg-white border border-slate-200 rounded-2xl shadow-xl z-20 overflow-hidden"
+        class="absolute right-0 mt-2 w-80 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-xl z-20 overflow-hidden"
       >
-        <div class="px-4 py-3 border-b border-slate-100 flex items-center justify-between">
-          <p class="text-sm font-semibold text-slate-900">Notificaciones</p>
+        <div class="px-4 py-3 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
+          <p class="text-sm font-semibold text-slate-900 dark:text-white">Notificaciones</p>
           <span v-if="notificationStore.notifications.length" class="text-xs text-slate-400">
             {{ notificationStore.notifications.length }} total
           </span>
@@ -83,11 +83,11 @@ function goToPost(postId) {
             v-for="(notif, i) in notificationStore.notifications"
             :key="i"
             @click="goToPost(notif.postId)"
-            class="w-full flex items-start gap-3 px-4 py-3 hover:bg-slate-50 transition-colors text-left border-b border-slate-50 last:border-0"
+            class="w-full flex items-start gap-3 px-4 py-3 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors text-left border-b border-slate-50 dark:border-slate-800 last:border-0"
           >
             <div
               class="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5"
-              :class="notif.type === 'like' ? 'bg-red-100' : 'bg-violet-100'"
+              :class="notif.type === 'like' ? 'bg-red-100 dark:bg-red-950' : 'bg-violet-100 dark:bg-violet-950'"
             >
               <svg
                 v-if="notif.type === 'like'"
@@ -118,7 +118,7 @@ function goToPost(postId) {
             </div>
 
             <div class="flex-1 min-w-0">
-              <p class="text-sm text-slate-700 leading-snug">{{ notif.message }}</p>
+              <p class="text-sm text-slate-700 dark:text-slate-300 leading-snug">{{ notif.message }}</p>
               <p class="text-xs text-slate-400 mt-0.5">{{ formatRelativeTime(notif.createdAt) }}</p>
             </div>
           </button>

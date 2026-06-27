@@ -122,15 +122,15 @@ onUnmounted(() => {
 
     <main class="max-w-2xl mx-auto px-4 py-6 space-y-4">
       <!-- Selector de categorías múltiple -->
-      <div v-if="categories.length" class="bg-white border border-slate-200 rounded-2xl p-4">
+      <div v-if="categories.length" class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl p-4">
         <div class="flex items-center justify-between mb-3">
-          <p class="text-xs font-medium text-slate-500 uppercase tracking-wide">
+          <p class="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wide">
             Filtrar por categoría
           </p>
           <button
             v-if="activeCategoryIds.length > 0"
             @click="clearFilters"
-            class="text-xs text-slate-400 hover:text-slate-600 flex items-center gap-1"
+            class="text-xs text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 flex items-center gap-1"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"

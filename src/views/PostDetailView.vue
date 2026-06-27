@@ -12,11 +12,13 @@ import {
 } from '@/utils/formatDate'
 import { useRoute, useRouter } from 'vue-router'
 import { getPostById, deletePost } from '@/services/postService'
+import { useToastStore } from '@/stores/toast'
 
 import ConfirmModal from '@/components/ui/ConfirmModal.vue'
 
 const route = useRoute()
 const authStore = useAuthStore()
+const toast = useToastStore()
 
 const post = ref(null)
 const comments = ref([])
@@ -120,37 +122,58 @@ function openDeleteModal() {
   showDeleteModal.value = true
   showOptions.value = false
 }
+
+async function sharePost() {
+  const url = `${window.location.origin}/posts/${post.value.id}`
+  try {
+    await navigator.clipboard.writeText(url)
+    toast.success('¡Link copiado al portapapeles!')
+  } catch {
+    toast.error('No se pudo copiar el link')
+  }
+}
+
 onMounted(loadData)
 </script>
 
 <template>
-  <div class="min-h-screen bg-slate-50">
+  <div class="min-h-screen bg-slate-50 dark:bg-slate-950">
     <AppHeader />
 
     <main class="max-w-2xl mx-auto px-4 py-6">
+      <!-- Botón volver -->
+      <button
+        @click="router.back()"
+        class="flex items-center gap-1.5 text-sm text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-white mb-4 transition-colors"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18" />
+        </svg>
+        Volver
+      </button>
       <div v-if="loading" class="space-y-4">
-        <div class="bg-white border border-slate-200 rounded-2xl p-5 animate-pulse">
+        <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl p-5 animate-pulse">
           <div class="flex items-center gap-3 mb-3">
-            <div class="w-10 h-10 rounded-full bg-slate-200"></div>
+            <div class="w-10 h-10 rounded-full bg-slate-200 dark:bg-slate-700"></div>
             <div class="space-y-2">
-              <div class="h-3 w-24 bg-slate-200 rounded"></div>
-              <div class="h-2.5 w-16 bg-slate-100 rounded"></div>
+              <div class="h-3 w-24 bg-slate-200 dark:bg-slate-700 rounded"></div>
+              <div class="h-2.5 w-16 bg-slate-100 dark:bg-slate-800 rounded"></div>
             </div>
           </div>
           <div class="space-y-2">
-            <div class="h-3 bg-slate-100 rounded w-full"></div>
-            <div class="h-3 bg-slate-100 rounded w-full"></div>
-            <div class="h-3 bg-slate-100 rounded w-3/4"></div>
+            <div class="h-3 bg-slate-100 dark:bg-slate-800 rounded w-full"></div>
+            <div class="h-3 bg-slate-100 dark:bg-slate-800 rounded w-full"></div>
+            <div class="h-3 bg-slate-100 dark:bg-slate-800 rounded w-3/4"></div>
           </div>
         </div>
-        <div class="bg-white border border-slate-200 rounded-2xl p-5 animate-pulse">
-          <div class="h-4 w-32 bg-slate-200 rounded mb-4"></div>
-          <div class="h-12 bg-slate-100 rounded-xl"></div>
+        <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl p-5 animate-pulse">
+          <div class="h-4 w-32 bg-slate-200 dark:bg-slate-700 rounded mb-4"></div>
+          <div class="h-12 bg-slate-100 dark:bg-slate-800 rounded-xl"></div>
         </div>
       </div>
 
       <template v-else-if="post">
-        <article class="bg-white border border-slate-200 rounded-2xl p-5 mb-4">
+        <article class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl p-5 mb-4">
           <div class="flex items-center gap-3 mb-3">
             <div
               :class="getAvatarColor(post.username)"
@@ -159,8 +182,8 @@ onMounted(loadData)
               {{ getInitials(post.username) }}
             </div>
             <div>
-              <p class="text-sm font-medium text-slate-900">{{ post.username }}</p>
-              <p class="text-xs text-slate-400">{{ formatRelativeTime(post.created) }}</p>
+              <p class="text-sm font-medium text-slate-900 dark:text-white">{{ post.username }}</p>
+              <p class="text-xs text-slate-400 dark:text-slate-500">{{ formatRelativeTime(post.created) }}</p>
             </div>
           </div>
 
@@ -168,7 +191,7 @@ onMounted(loadData)
           <div v-if="isOwner" class="relative">
             <button
               @click.stop="showOptions = !showOptions"
-              class="text-slate-400 hover:text-slate-600 p-1 rounded-lg hover:bg-slate-100"
+              class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 p-1 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -190,11 +213,11 @@ onMounted(loadData)
                 v-if="showOptions"
                 v-click-outside="() => (showOptions = false)"
                 @click.stop
-                class="absolute right-0 mt-1 w-40 bg-white border border-slate-200 rounded-xl shadow-lg z-10 overflow-hidden"
+                class="absolute right-0 mt-1 w-40 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl shadow-lg z-10 overflow-hidden"
               >
                 <RouterLink
                   :to="{ name: 'edit-post', params: { id: postId } }"
-                  class="flex items-center gap-2 px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50"
+                  class="flex items-center gap-2 px-4 py-2.5 text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800"
                   @click="showOptions = false"
                 >
                   <svg
@@ -215,7 +238,7 @@ onMounted(loadData)
                 </RouterLink>
                 <button
                   @click="openDeleteModal()"
-                  class="w-full flex items-center gap-2 px-4 py-2.5 text-sm text-red-600 hover:bg-red-50"
+                  class="w-full flex items-center gap-2 px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 dark:hover:bg-red-950"
                 >
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -237,12 +260,12 @@ onMounted(loadData)
             </Transition>
           </div>
 
-          <p class="text-sm text-slate-700 leading-relaxed mb-3 whitespace-pre-wrap">
+          <p class="text-sm text-slate-700 dark:text-slate-300 leading-relaxed mb-3 whitespace-pre-wrap">
             {{ post.postContent }}
           </p>
 
           <!-- ← agregar este bloque -->
-          <div v-if="post.imageUrl" class="mb-3 rounded-xl overflow-hidden bg-slate-100">
+          <div v-if="post.imageUrl" class="mb-3 rounded-xl overflow-hidden bg-slate-100 dark:bg-slate-800">
             <img
               :src="post.imageUrl"
               :alt="post.postContent"
@@ -261,10 +284,22 @@ onMounted(loadData)
               {{ cat.name }}
             </span>
           </div>
+
+          <div class="flex justify-end pt-3 border-t border-slate-100 dark:border-slate-800 mt-3">
+            <button
+              @click="sharePost"
+              class="flex items-center gap-1.5 text-sm text-slate-500 dark:text-slate-400 hover:text-violet-600 transition-colors"
+              title="Copiar link"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" class="w-5 h-5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M7.217 10.907a2.25 2.25 0 1 0 0 2.186m0-2.186c.18.324.283.696.283 1.093s-.103.77-.283 1.093m0-2.186 9.566-5.314m-9.566 7.5 9.566 5.314m0 0a2.25 2.25 0 1 0 3.935 2.186 2.25 2.25 0 0 0-3.935-2.186Zm0-12.814a2.25 2.25 0 1 0 3.933-2.185 2.25 2.25 0 0 0-3.933 2.185Z" />
+              </svg>
+            </button>
+          </div>
         </article>
 
-        <div class="bg-white border border-slate-200 rounded-2xl p-5">
-          <h2 class="text-sm font-semibold text-slate-900 mb-4">
+        <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl p-5">
+          <h2 class="text-sm font-semibold text-slate-900 dark:text-white mb-4">
             Comentarios ({{ comments.length }})
           </h2>
 
@@ -283,7 +318,7 @@ onMounted(loadData)
             <div v-if="hasMoreComments" class="text-center pt-2">
               <button
                 @click="showMoreComments"
-                class="text-sm font-medium text-violet-600 hover:text-violet-700 border border-violet-200 rounded-lg px-4 py-1.5 transition-colors"
+                class="text-sm font-medium text-violet-600 hover:text-violet-700 border border-violet-200 dark:border-violet-800 rounded-lg px-4 py-1.5 transition-colors"
               >
                 Ver más comentarios (+{{ Math.min(5, rootComments.length - visibleCount) }})
               </button>
@@ -292,7 +327,7 @@ onMounted(loadData)
 
           <div
             v-if="replyingTo"
-            class="flex items-center justify-between text-xs text-violet-600 bg-violet-50 rounded-lg px-3 py-1.5 mb-2"
+            class="flex items-center justify-between text-xs text-violet-600 bg-violet-50 dark:bg-violet-950 rounded-lg px-3 py-1.5 mb-2"
           >
             Respondiendo a {{ replyingTo.username }}
             <button @click="cancelReply" class="text-violet-400 hover:text-violet-700">✕</button>
@@ -303,7 +338,7 @@ onMounted(loadData)
               v-model="newComment"
               type="text"
               placeholder="Escribe un comentario..."
-              class="flex-1 px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-violet-500"
+              class="flex-1 px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg text-sm bg-white dark:bg-slate-800 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-violet-500"
             />
             <button
               type="submit"
@@ -316,8 +351,8 @@ onMounted(loadData)
         </div>
       </template>
       <div v-else-if="notFound" class="text-center py-16">
-        <p class="text-slate-900 font-medium mb-2">Esta publicación no existe</p>
-        <p class="text-sm text-slate-500 mb-4">Puede que haya sido eliminada.</p>
+        <p class="text-slate-900 dark:text-white font-medium mb-2">Esta publicación no existe</p>
+        <p class="text-sm text-slate-500 dark:text-slate-400 mb-4">Puede que haya sido eliminada.</p>
         <RouterLink to="/" class="text-violet-600 text-sm font-medium hover:underline">
           Volver al feed
         </RouterLink>
